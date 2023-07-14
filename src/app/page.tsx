@@ -1,95 +1,63 @@
-import Image from 'next/image'
-import styles from './page.module.css'
+"use client";
+import React from 'react';
+import { useState, useEffect } from 'react';
+import axios from 'axios';
+
+import { Container } from "@mui/material";
+
+import Map from './components/Map'
+import Header from './components/Header'
+import FieldInformation from './components/FieldInformation'
+import FieldView from './components/FieldView'
+
+const Token: any = process.env.NEXT_PUBLIC_APP_TOKEN
 
 export default function Home() {
+
+
+
+  const blueShade = "#0080ff";
+  const [polygonCord, setPolygonCord] = useState([]);
+
+  const [isupdate, setisupdate] = useState(0);
+
+  const fetchGeojson = () => {
+    axios.get('https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_110m_admin_1_states_provinces_shp.geojson')
+      .then(response => {
+        let polygonArr = response.data.features.map((el: any) => el.geometry.coordinates[0])
+        setPolygonCord(polygonArr)
+
+        console.log(polygonArr, 'ssssssssssssss')
+
+
+      })
+      .catch((error) => {
+        console.log(error)
+      });
+  }
+
+  useEffect(() => {
+    fetchGeojson()
+  }, [isupdate]);
+
+
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
 
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
+    <Container maxWidth="lg">
+      <Header></Header>
+      {
 
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
+        polygonCord.length > 0 ?
+          <Map polygonCord={polygonCord} layerColor={blueShade} Token={Token}></Map>
+          : ''
+      }
 
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
+      <FieldInformation></FieldInformation>
+      <FieldView></FieldView>
 
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore the Next.js 13 playground.</p>
-        </a>
 
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+
+
+    </Container>
   )
 }
